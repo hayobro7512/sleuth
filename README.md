@@ -4,7 +4,7 @@ Chrome extension that highlights pressure tactics (cookie banners, free trials, 
 
 ## Quick start (5 minutes, no Go needed)
 Needs Node 18+ and Chrome.
-1. `git clone <this repo> && cd signup-shield`
+1. `git clone https://github.com/hayobro7512/sleuth && cd sleuth`
 2. Get a free key at https://build.nvidia.com ("Get API Key"). `cp .env.example .env` and paste the key into `.env`.
 3. `sh start.sh` (leave it running).
 4. Chrome → `chrome://extensions` → Developer mode → Load unpacked → pick the `extension/` folder.
@@ -21,6 +21,9 @@ Use `shield.localhost`, not `localhost`, for demos: it is on the Grammarly agent
 4. Ask the agent: "What should I know before buying from amazon.com?", "Rank my recurring costs per year", "What renews soon?"
 
 Check the grounding filter: `node server/server.js --selftest`. Connector tests: `cd pack && SS_ENDPOINT=http://localhost:8787 SS_TOKEN=$(cat ../ss_token.txt) npm test` (backend started with the same `SS_TOKEN`).
+
+## GoLens: build your own version of this
+The trick that lets Go underline non-editable page text (make regions editable inside a real click, focus them one by one, lock the text) is now its own tool: **[GoLens](https://github.com/hayobro7512/golens)**. One command scaffolds a Chrome extension plus Go agent instructions for any kind of text (refund terms, medical notices, job ads). Sleuth's inline engine is the same code with Sleuth-specific cues added.
 
 ## Inline mode (default): Go underlines the page itself
 No backend or model call. On a consent, trial, or checkout page the extension makes nearby text blocks editable and focuses one inside your next real click. Go's "While writing" trigger then underlines them with its own card. Findings from experiments: `docs/GO_INLINE_FINDINGS.md`. Switch modes with the badge, then **Mode**.
