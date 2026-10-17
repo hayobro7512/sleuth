@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Experiment 2</title>
+<!-- Same surfaces as editable.html, but the wording avoids the words that trigger the Sign-up Shield extension,
+     so any underline you see here comes from Go, not from the extension. -->
+<style>
+  body{font:16px/1.5 system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#222}
+  h2{margin-top:24px;font-size:18px}
+  textarea,.box{width:100%;min-height:80px;border:1px solid #bbb;border-radius:8px;padding:10px;font:inherit;box-sizing:border-box}
+  button{margin:4px 6px 4px 0;padding:6px 10px}
+</style></head><body>
+<h1>Go experiment two</h1>
+<h2>A. Textarea</h2>
+<textarea id="a">Try it free for 7 days, then $239.88 per year, charged automatically. Only 2 spots left at this price! Offer ends in 09:59. No thanks, I'd rather fail my classes.</textarea>
+<h2>B. Editable div</h2>
+<div id="b" class="box" contenteditable="true">We value your privacy. We and our 847 partners store and access data on your device for ads, profiling and measurement. Marketing options are already switched on.</div>
+<h2>C. Ordinary text</h2>
+<div id="c" class="box">Start your trial today. A card is required. To end it, call support Monday to Friday 9-5.</div>
+<button id="btnC">Make editable</button><button id="btnC2">Restore</button>
+<script>
+  const c = document.getElementById("c");
+  btnC.onclick = () => { c.setAttribute("contenteditable", "plaintext-only"); c.focus(); };
+  btnC2.onclick = () => c.removeAttribute("contenteditable");
+</script>
+</body></html>

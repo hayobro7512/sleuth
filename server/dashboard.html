@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" data-ss-ignore><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign-up Shield history</title>
+<style>
+  :root{color-scheme:light dark;--bg:#fafaf7;--fg:#1c1c1e;--card:#fff;--line:#ddd;--mut:#666}
+  @media (prefers-color-scheme:dark){:root{--bg:#161616;--fg:#eee;--card:#222;--line:#444;--mut:#aaa}}
+  body{background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif;max-width:760px;margin:0 auto;padding:20px 16px}
+  h1{font-size:22px} .m{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:12px 0}
+  .row{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+  .e{border-top:1px solid var(--line);padding:8px 0}.tag{font-weight:700;font-size:12px;padding:1px 6px;border-radius:4px;background:#ffe2a8;color:#222}
+  .q{color:var(--mut);font-style:italic} button{padding:5px 10px;cursor:pointer} .mut{color:var(--mut);font-size:13px}
+</style></head><body>
+<h1>What Sign-up Shield remembers</h1>
+<p class="mut">Only merchant names, the exact flagged wording, and when you saw it. No page text, no URLs with queries, no personal data. History is saved only while you have it switched on in the extension.</p>
+<div id="list">Loading…</div>
+<h1>Subscriptions and trials</h1>
+<p class="mut">Only what you confirmed with Yes or Not sure after a purchase. A page alone never creates one.</p>
+<div id="subs">Loading…</div>
+<script>
+  const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+  const day = (ms) => new Date(ms).toLocaleString();
+  async function api(path, init) { const r = await fetch(path, init); if (!r.ok) throw new Error(r.status); return r.json(); }
+
+  async function render() {
+    const list = document.getElementById("list");
+    list.replaceChildren();
+    const { merchants } = await api("/v1/merchants");
+    if (!merchants.length) { list.append(el("p", "mut", "Nothing saved yet.")); return; }
+    for (const m of merchants) {
+      const box = el("div", "m"), row = el("div", "row");
+      row.append(el("b", "", m.merchant), el("span", "mut", `${m.visits} visit(s), ${m.events} event(s), last ${day(m.last)}`));
+      const del = el("button", "", "Delete all for this merchant");
+      del.onclick = async () => { await api("/v1/merchants/" + encodeURIComponent(m.merchant), { method: "DELETE" }); render(); };
+      row.append(del);
+      box.append(row);
+      const h = await api("/v1/merchants/" + encodeURIComponent(m.merchant));
+      for (const e of h.events) {
+        const r = el("div", "e");
+        const head = el("div", "row"); head.append(el("span", "tag", `${e.label} · ${e.severity}`), el("span", "mut", `${day(e.last)} · seen ${e.count}x`));
+        const one = el("button", "", "Delete");
+        one.onclick = async () => { await api("/v1/events/" + e.id, { method: "DELETE" }); render(); };
+        head.append(one);
+        r.append(head, el("div", "q", `“${e.quote}”`), el("div", "", e.why));
+        box.append(r);
+      }
+      list.append(box);
+    }
+  }
+  const money = (x) => (x.price == null ? "price unknown" : `$${x.price}${x.billing ? " per " + x.billing : ""}`);
+  async function renderSubs() {
+    const box = document.getElementById("subs");
+    box.replaceChildren();
+    const { subscriptions } = await api("/v1/subscriptions");
+    if (!subscriptions.length) { box.append(el("p", "mut", "Nothing confirmed yet.")); return; }
+    for (const x of subscriptions) {
+      const card = el("div", "m"), head = el("div", "row");
+      head.append(el("b", "", x.merchant), el("span", "mut", `${money(x)} · ${x.status}`));
+      const when = x.renewalDate ? `${x.trialDays ? "Trial ends" : "Next charge"} ${x.renewalDate}${x.daysLeft != null ? ` (${x.daysLeft} day(s))` : ""}` : "No date known";
+      const actions = el("span");
+      if (x.status !== "cancelled") {
+        const c = el("button", "", "Mark cancelled");
+        c.onclick = async () => { await api("/v1/subscriptions/" + x.id, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "cancelled" }) }); renderSubs(); };
+        actions.append(c, " ");
+      }
+      const d = el("button", "", "Delete");
+      d.onclick = async () => { await api("/v1/subscriptions/" + x.id, { method: "DELETE" }); renderSubs(); };
+      actions.append(d);
+      head.append(actions);
+      card.append(head, el("div", "", when));
+      if (x.evidence) card.append(el("div", "q", `“${x.evidence}”`));
+      box.append(card);
+    }
+  }
+  renderSubs().catch((e) => { document.getElementById("subs").textContent = "Could not load subscriptions: " + e.message; });
+  render().catch((e) => { document.getElementById("list").textContent = "Could not load history: " + e.message; });
+</script>
+</body></html>

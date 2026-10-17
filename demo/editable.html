@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Experiment: does Go underline text it did not see typed?</title>
+<style>
+  body{font:16px/1.5 system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#222}
+  h2{margin-top:28px;font-size:18px}
+  textarea,.box{width:100%;min-height:90px;border:1px solid #bbb;border-radius:8px;padding:10px;font:inherit;box-sizing:border-box}
+  .note{color:#666;font-size:13px}
+  button{margin:4px 6px 4px 0;padding:6px 10px}
+</style></head><body>
+<h1>Go "While writing" experiment</h1>
+<p class="note">Turn on a custom agent with the trigger Proactive assistance &gt; While writing (automatic). Then try each surface below. Write down what happens for each.</p>
+
+<h2>A. Textarea, pre-filled by the page (no typing yet)</h2>
+<textarea id="a">Only 2 spots left at this price! Offer ends in 09:59. After 7 days, your plan renews at $239.88/year unless you cancel. No thanks, I'd rather fail my classes.</textarea>
+<p class="note">Check 1: any underline right away? Check 2: click inside, type one extra letter. Underlines now?</p>
+
+<h2>B. contenteditable div, pre-filled by the page</h2>
+<div id="b" class="box" contenteditable="true">We value your privacy. We and our 847 partners store and access data on your device for ads, profiling and measurement. Marketing and legitimate interest options are already switched on.</div>
+
+<h2>C. Normal page text, made editable in place</h2>
+<div id="c" class="box">Start your free trial. Credit card required. To cancel, call support Monday to Friday 9-5.</div>
+<button id="btnC">Make the text above editable (contenteditable)</button>
+<button id="btnC2">Restore</button>
+<p class="note">Check: after pressing the button, click into the text and type a letter. Underlines in place?</p>
+
+<h2>D. Whole page editable (designMode)</h2>
+<button id="btnD">Page designMode ON</button>
+<button id="btnD2">OFF</button>
+<p class="note">Expect broken clicks and links while on. Check whether anything gets underlined.</p>
+
+<script>
+  const c = document.getElementById("c");
+  btnC.onclick = () => { c.setAttribute("contenteditable", "plaintext-only"); c.focus(); };
+  btnC2.onclick = () => c.removeAttribute("contenteditable");
+  btnD.onclick = () => (document.designMode = "on");
+  btnD2.onclick = () => (document.designMode = "off");
+</script>
+</body></html>

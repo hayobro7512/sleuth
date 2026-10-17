@@ -1,0 +1,17 @@
+{
+  "name": "signup-shield-pack",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Superhuman Go connector for Sign-up Shield",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsc && node dist/test.js"
+  },
+  "dependencies": {
+    "@codahq/packs-sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
